@@ -14,7 +14,7 @@ function MyStack() {
       }}
     >
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Registro" component={RegistroScreen} />
+      <Stack.Screen name="Register" component={RegistroScreen} />
     </Stack.Navigator>
   );
 }
