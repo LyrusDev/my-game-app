@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import { Background, Logo, Header, Button, TextInput, BackButton } from '../components'
 import { emailValidator } from '../helpers/emailValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
 import { nameValidator } from '../helpers/nameValidator'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
+// Autenticación
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../helpers/ConfigDB";
 
 export default function RegisterScreen ({ navigation }: any) {
   const { colors } = useTheme()
@@ -25,6 +28,34 @@ export default function RegisterScreen ({ navigation }: any) {
     }
   }
 
+  const register = () => {
+    createUserWithEmailAndPassword(auth, email.value, password.value)
+      .then((userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }]
+        })
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+
+        if (errorCode === "auth/invalid-email") {
+          Alert.alert("ERROR", "Debe ingresar un correo válido");
+        } else if (errorCode === "auth/weak-password") {
+          Alert.alert("ERROR", "La contraseña debe contener al menos 6 caracteres");
+        } else {
+          Alert.alert("ERROR", "Verifique los datos ingresados");
+        }
+      });
+    setName({ value: '', error: '' });
+    setEmail({ value: '', error: '' });
+    setPassword({ value: '', error: '' });
+  }
+
   const onSignUpPressed = () => {
     const nameError = nameValidator(name.value)
     const emailError = emailValidator(email.value)
@@ -35,10 +66,7 @@ export default function RegisterScreen ({ navigation }: any) {
       setPassword({ ...password, error: passwordError })
       return
     }
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }]
-    })
+    register()
   }
 
   return (
@@ -65,14 +93,6 @@ export default function RegisterScreen ({ navigation }: any) {
         autoCompleteType="email"
         textContentType="emailAddress"
         keyboardType="email-address"
-      />
-      <TextInput
-        label="Edad"
-        returnKeyType="next"
-        value={name.value}
-        onChangeText={(text: string) => setName({ value: text, error: '' })}
-        error={!!name.error}
-        errorText={name.error}
       />
       <TextInput
         label="Contraseña"

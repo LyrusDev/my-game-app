@@ -1,16 +1,47 @@
 import React, { useState } from 'react'
-import { TouchableOpacity, StyleSheet, View } from 'react-native'
+import { TouchableOpacity, StyleSheet, View, Alert } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import { emailValidator } from '../helpers/emailValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
 import { Background, Logo, Header, TextInput, Button } from '../components'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../helpers/ConfigDB";
 
 export default function LoginScreen ({ navigation }: any) {
   const { colors } = useTheme()
   const styles = makeStyles(colors)
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
+
+  const login = () => {
+    signInWithEmailAndPassword(auth, email.value, password.value)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log("Acceso correcto");
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }]
+        })
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+
+        if (errorCode === "auth/invalid-credential") {
+          Alert.alert("ERROR", "Correo o contraseña no es válido");
+        } else if (errorCode === "auth/missing-password") {
+          Alert.alert("ERROR", "No se admite contraseña en blanco");
+        } else {
+          Alert.alert("ERROR", "Verifique las credenciales");
+        }
+      });
+
+    setEmail({ value: '', error: '' });
+    setPassword({ value: '', error: '' });
+  }
 
   const onLoginPressed = () => {
     const emailError = emailValidator(email.value)
@@ -20,10 +51,7 @@ export default function LoginScreen ({ navigation }: any) {
       setPassword({ ...password, error: passwordError })
       return
     }
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }]
-    })
+    login()
   }
 
   return (
