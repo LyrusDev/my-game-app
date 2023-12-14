@@ -43,12 +43,16 @@ export default function RegisterScreen ({ navigation }: any) {
         const errorCode = error.code;
         const errorMessage = error.message;
 
-        if (errorCode === "auth/invalid-email") {
-          Alert.alert("ERROR", "Debe ingresar un correo válido");
-        } else if (errorCode === "auth/weak-password") {
-          Alert.alert("ERROR", "La contraseña debe contener al menos 6 caracteres");
-        } else {
-          Alert.alert("ERROR", "Verifique los datos ingresados");
+        switch (errorCode) {
+          case "auth/invalid-email":
+            Alert.alert("ERROR", "Debe ingresar un correo válido");
+            break;
+          case "auth/weak-password":
+            Alert.alert("ERROR", "La contraseña debe contener al menos 6 caracteres");
+            break;
+          default:
+            Alert.alert("ERROR", "Verifique los datos ingresados");
+            break;
         }
       });
     setName({ value: '', error: '' });

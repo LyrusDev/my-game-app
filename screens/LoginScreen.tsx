@@ -30,12 +30,16 @@ export default function LoginScreen ({ navigation }: any) {
         const errorCode = error.code;
         const errorMessage = error.message;
 
-        if (errorCode === "auth/invalid-credential") {
-          Alert.alert("ERROR", "Correo o contraseña no es válido");
-        } else if (errorCode === "auth/missing-password") {
-          Alert.alert("ERROR", "No se admite contraseña en blanco");
-        } else {
-          Alert.alert("ERROR", "Verifique las credenciales");
+        switch (errorCode) {
+          case "auth/invalid-credential":
+            Alert.alert("ERROR", "Correo o contraseña no es válido");
+            break;
+          case "auth/missing-password":
+            Alert.alert("ERROR", "No se admite contraseña en blanco");
+            break;
+          default:
+            Alert.alert("ERROR", "Verifique las credenciales");
+            break;
         }
       });
 
