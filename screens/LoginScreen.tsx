@@ -11,6 +11,7 @@ import { auth } from "../helpers/ConfigDB";
 export default function LoginScreen({ navigation }: any) {
   const { colors } = useTheme();
   const styles = makeStyles(colors);
+  
   const [email, setEmail] = useState({ value: "", error: "" });
   const [password, setPassword] = useState({ value: "", error: "" });
 
@@ -23,7 +24,7 @@ export default function LoginScreen({ navigation }: any) {
 
         navigation.reset({
           index: 0,
-          routes: [{ name: "Home" }],
+          routes: [{ name: "BottomNav" }],
         });
       })
       .catch((error) => {
