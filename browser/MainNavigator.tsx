@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 
 import LoginScreen from "../screens/LoginScreen";
 import RegistroScreen from "../screens/RegistroScreen";
-import HomeScreen from "../screens/HomeScreen";
+import BottomNavigator from "./BottomNavigator";
 
 const Stack = createStackNavigator();
 
@@ -16,7 +16,7 @@ function MyStack() {
     >
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegistroScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="BottomNav" component={BottomNavigator} />
     </Stack.Navigator>
   );
 }

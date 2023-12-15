@@ -11,7 +11,8 @@ import { passwordValidator } from "../helpers/passwordValidator";
 import { ageValidator } from "../helpers/ageValidator";
 // Autenticación
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../helpers/ConfigDB";
+import { ref, set } from 'firebase/database'
+import { auth, db } from "../helpers/ConfigDB";
 
 export default function RegisterScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -37,11 +38,17 @@ export default function RegisterScreen({ navigation }: any) {
     createUserWithEmailAndPassword(auth, email.value, password.value)
       .then((userCredential) => {
         // Signed up
-        const user = userCredential.user;
+        const userUID = userCredential.user.uid;
+
+        // Additional DAta
+        set(ref(db, 'users/'+ userUID), {
+          age: age.value,
+          nick: nick.value,
+        })
 
         navigation.reset({
           index: 0,
-          routes: [{ name: "Home" }],
+          routes: [{ name: "BottomNav" }],
         });
       })
       .catch((error) => {

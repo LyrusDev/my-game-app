@@ -23,7 +23,7 @@ export default function LoginScreen({ navigation }: any) {
 
         navigation.reset({
           index: 0,
-          routes: [{ name: "Home" }],
+          routes: [{ name: "BottomNav" }],
         });
       })
       .catch((error) => {
