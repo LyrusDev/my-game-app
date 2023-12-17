@@ -18,7 +18,7 @@ export default function ProfileScreen({ navigation }: any) {
   const [email, setEmail] = useState({ value: "", error: "" });
   const [nick, setNick] = useState({ value: "", error: "" });
   const [age, setAge] = useState({ value: "", error: "" });
-  const [password, setPassword] = useState({ value: "", error: "" });
+  // const [password, setPassword] = useState({ value: "", error: "" });
 
   const { colors } = useTheme()
   const styles = makeStyles(colors)
@@ -35,51 +35,6 @@ export default function ProfileScreen({ navigation }: any) {
         Alert.alert("ERROR", "Ha ocurrido un error, intentelo mas luego");
       });
   }
-
-  // const pickImage = async () => {
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
-
-  //   // console.log(result);
-
-  //   if (!result.canceled) {
-  //     setImage(result.assets[0].uri);
-  //     console.log(result);
-  //   }
-  // };
-
-  // Subir
-  // async function uploadImage() {
-  //   pickImage();
-  //   // Ruta de la imagen
-  //   const storageRef = ref(storage, "profile/profile1");
-
-  //   const response = await fetch(image);
-  //   const blob = await response.blob();
-
-  //   try {
-  //     // Subir una imagen JPG
-  //     await uploadBytes(storageRef, blob, {
-  //       contentType: "image/jpg",
-  //     });
-  //     // Subir una imagen PNG
-  //     await uploadBytes(storageRef, blob, {
-  //       contentType: "image/png",
-  //     });
-
-  //     console.log("El archivo se subió con éxito");
-
-  //     // Obtiene la URL de la imagen
-  //     const imageURL = await getDownloadURL(storageRef);
-  //     // console.log("URL de la imagen: ", imageURL);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
 
   // Obtener datos
   const initialData = () => {
@@ -104,7 +59,7 @@ export default function ProfileScreen({ navigation }: any) {
   };
 
   useEffect(() => {
-    initialData();
+    initialData(); 
   }, []);
 
   const pickImage = async () => {
@@ -121,8 +76,34 @@ export default function ProfileScreen({ navigation }: any) {
       const segments = result.assets[0].uri.split("/");
       const imageName = segments[segments.length - 1];
       setImageName(imageName);
+
+      uploadImage();
     }
   };
+
+  // Subir
+  async function uploadImage() {
+    // Ruta de la imagen
+    const storageRef = ref(storage, "imageProfile/" + imageName);
+
+    const response = await fetch(image);
+    const blob = await response.blob();
+
+    try {
+      // Subir una imagen JPG
+      await uploadBytes(storageRef, blob, {
+        contentType: "image/jpg",
+      });
+      // Subir una imagen PNG
+      await uploadBytes(storageRef, blob, {
+        contentType: "image/png",
+      });
+
+      console.log("El archivo se subió con éxito");
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <ImageBackground
@@ -144,16 +125,16 @@ export default function ProfileScreen({ navigation }: any) {
         <Text style={styles.txtHeader}>Bienvenido/a</Text>
 
         <TouchableOpacity style={styles.btnProfile} onPress={pickImage}>
-        {!image && (
-          <Image
-            source={{
-              uri: "https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png",
-            }}
-            style={styles.image}
-          />
-        )}
-        {image && <Image source={{ uri: image }} style={styles.image} />}
-      </TouchableOpacity>
+          {!image && (
+            <Image
+              source={{
+                uri: "https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png",
+              }}
+              style={styles.image}
+            />
+          )}
+          {image && <Image source={{ uri: image }} style={styles.image} />}
+        </TouchableOpacity>
 
         <Text style={styles.txtData}>{nick.value}</Text>
         <Text style={styles.txtData}>{email.value}</Text>
