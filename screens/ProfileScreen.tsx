@@ -1,7 +1,7 @@
 import { Alert, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 // Librerias
-import { Button, useTheme } from 'react-native-paper'
+import { Button, Dialog, Portal, PaperProvider, Text as PaperText, useTheme } from 'react-native-paper'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
 // Image Picker
 import * as ImagePicker from "expo-image-picker";
@@ -23,6 +23,11 @@ export default function ProfileScreen({ navigation }: any) {
   const { colors } = useTheme()
   const styles = makeStyles(colors)
 
+  // LogOut Dialog
+  const [visible, setVisible] = useState(false);
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
+
   const logOut = () => {
     signOut(auth)
       .then(() => {
@@ -30,6 +35,7 @@ export default function ProfileScreen({ navigation }: any) {
           index: 0,
           routes: [{ name: "Login" }],
         });
+        console.log('Salio del sistema');
       })
       .catch((error) => {
         Alert.alert("ERROR", "Ha ocurrido un error, intentelo mas luego");
@@ -59,7 +65,7 @@ export default function ProfileScreen({ navigation }: any) {
   };
 
   useEffect(() => {
-    initialData(); 
+    initialData();
   }, []);
 
   const pickImage = async () => {
@@ -111,35 +117,60 @@ export default function ProfileScreen({ navigation }: any) {
       resizeMode="cover"
       style={styles.background}
     >
-      <View style={{ flexDirection: 'row-reverse' }}>
-        <Button
-          mode='text'
-          textColor='#fff'
-          onPress={() => logOut()}
-          style={styles.btnLogOut}
-        >
-          Cerrar Sesión
-        </Button>
-      </View>
-      <View style={styles.container}>
-        <Text style={styles.txtHeader}>Bienvenido/a</Text>
+      <PaperProvider>
+        {/* Dialog LogOut */}
+        <View style={{ flexDirection: 'row-reverse' }} >
+          <Button
+            style={styles.btnLogOut}
+            mode='text'
+            onPress={showDialog}
+          >
+            <PaperText style={{ color: '#2fb6c3', fontSize: 15, fontWeight: '700' }} >
+              Cerrar Sesión
+            </PaperText>
+          </Button>
+          <Portal>
+            <Dialog visible={visible} onDismiss={hideDialog} style={{ height: 140 }} >
+              <Dialog.Content>
+                <PaperText variant="bodyLarge">¿Seguro que quiere salir?</PaperText>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={hideDialog}>Cancelar</Button>
+                <Button onPress={logOut}>Salir</Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
+        </View>
 
-        <TouchableOpacity style={styles.btnProfile} onPress={pickImage}>
-          {!image && (
-            <Image
-              source={{
-                uri: "https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png",
-              }}
-              style={styles.image}
-            />
-          )}
-          {image && <Image source={{ uri: image }} style={styles.image} />}
-        </TouchableOpacity>
-
-        <Text style={styles.txtData}>{nick.value}</Text>
-        <Text style={styles.txtData}>{email.value}</Text>
-        <Text style={styles.txtData}>{age.value}</Text>
-      </View>
+        {/* Data */}
+        <View style={styles.container}>
+          <Text style={styles.txtHeader}>Bienvenido/a</Text>
+          <View style={styles.containerProfile} >
+            <TouchableOpacity style={styles.btnProfile} onPress={pickImage}>
+              {!image && (
+                <Image
+                  source={{
+                    uri: "https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png",
+                  }}
+                  style={styles.image}
+                />
+              )}
+              {image && <Image source={{ uri: image }} style={styles.image} />}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.containerData}>
+            <View style={styles.dataBanner}>
+              <Text style={styles.txtData}>{nick.value}</Text>
+            </View>
+            <View style={styles.dataBanner}>
+              <Text style={styles.txtData}>{email.value}</Text>
+            </View>
+            <View style={styles.dataBanner}>
+              <Text style={styles.txtData}>{age.value}</Text>
+            </View>
+          </View>
+        </View>
+      </PaperProvider>
     </ImageBackground>
   )
 }
@@ -151,25 +182,28 @@ const makeStyles = (colors: MD3Colors) =>
       width: '100%',
       backgroundColor: colors.surface
     },
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
     btnLogOut: {
       position: 'absolute',
-      marginRight: 30,
+      marginRight: 20,
       marginTop: 50,
+    },
+    container: {
+      flex: 1,
+      justifyContent: 'center'
     },
     txtHeader: {
       textAlign: 'center',
-      fontSize: 26,
-      color: '#fff',
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: '#2fb6c3',
+    },
+    containerProfile: {
+      alignItems: 'center'
     },
     btnProfile: {
       borderRadius: 100,
       borderWidth: 2,
-      borderColor: '#fff',
+      borderColor: '#aaa',
       marginTop: 20,
       marginBottom: 20
     },
@@ -178,7 +212,23 @@ const makeStyles = (colors: MD3Colors) =>
       height: 150,
       borderRadius: 100
     },
+    containerData: {
+      width: '100%',
+      gap: 10
+    },
+    dataBanner: {
+      marginLeft: 55,
+      marginRight: 55,
+      paddingTop: 20,
+      paddingBottom: 20,
+      paddingLeft: 30,
+      paddingRight: 30,
+      borderRadius: 15,
+      backgroundColor: '#2fb6c340',
+    },
     txtData: {
-      color: '#fff'
+      color: '#ffff',
+      fontSize: 17,
+      fontWeight: '400'
     }
   })
