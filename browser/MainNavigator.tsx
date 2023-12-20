@@ -8,6 +8,7 @@ import HomeScreen from "../screens/HomeScreen";
 // Pruebas
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ProfileScreen from "../screens/ProfileScreen";
+import GameScreen from "../screens/GameScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -33,8 +34,8 @@ function MyTab() {
         headerShown: false,
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Game" component={GameScreen} />
+      {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
     </Tab.Navigator>
   );
 }
@@ -42,7 +43,7 @@ function MyTab() {
 export default function MainNavigator() {
   return (
     <NavigationContainer>
-      <MyStack />
+      <MyTab />
     </NavigationContainer>
   );
 }
