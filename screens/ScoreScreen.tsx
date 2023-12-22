@@ -1,20 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { List, Title } from 'react-native-paper';
+import { ref, onValue } from 'firebase/database'
+import { db } from '../helpers/ConfigDB';
 
 export default function ScoreScreen() {
-  // Datos de ejemplo: 5 puntuaciones
-  const scoresData = [
-    { id: '1', name: 'Usuario 1', score: 80 },
-    { id: '2', name: 'Usuario 2', score: 95 },
-    { id: '3', name: 'Usuario 3', score: 60 },
-    { id: '4', name: 'Usuario 4', score: 75 },
-    { id: '5', name: 'Usuario 5', score: 88 },
-  ];
+  const [listData, setListData] = useState([])
+
+  const onDataList = () => {
+    onValue(ref(db, 'users/'), (snapshot) => {
+      const data = snapshot.val();
+      const dataArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+      setListData(dataArray)
+    });
+  }
+
+  useEffect(() => {
+    onDataList()
+  },[]);
 
   const renderItem = ({ item }: any) => (
     <List.Item
-      title={item.name}
+      title={item.nick}
       description={`Puntuación: ${item.score}`}
       left={(props) => <List.Icon {...props} icon="star" color="#FFD700" />}
       style={styles.containerList}
@@ -27,7 +34,7 @@ export default function ScoreScreen() {
         <Title style={styles.title}>Puntuaciones</Title>
       </View>
       <FlatList
-        data={scoresData}
+        data={listData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />
