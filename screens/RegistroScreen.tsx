@@ -46,6 +46,7 @@ export default function RegisterScreen({ navigation }: any) {
           age: age.value,
           nick: nick.value,
           imageProfile: "https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png",
+          score: 0
         })
 
         navigation.reset({
