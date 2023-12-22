@@ -8,6 +8,7 @@ import RegistroScreen from "../screens/RegistroScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ProfileScreen from "../screens/ProfileScreen";
 import GameScreen from "../screens/GameScreen";
+import ScoreScreen from "../screens/ScoreScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -34,7 +35,8 @@ function MyTab() {
       }}
     >
       {/* <Tab.Screen name="Game" component={GameScreen} /> */}
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
+      <Tab.Screen name="Score" component={ScoreScreen} />
     </Tab.Navigator>
   );
 }
@@ -42,7 +44,7 @@ function MyTab() {
 export default function MainNavigator() {
   return (
     <NavigationContainer>
-      <MyStack />
+      <MyTab />
     </NavigationContainer>
   );
 }
