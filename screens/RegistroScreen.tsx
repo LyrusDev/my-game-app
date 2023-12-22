@@ -23,6 +23,7 @@ export default function RegisterScreen({ navigation }: any) {
   const [age, setAge] = useState({ value: "", error: "" });
   const [password, setPassword] = useState({ value: "", error: "" });
 
+
   const goBack = () => {
     if (navigation.canGoBack()) {
       navigation.goBack();
@@ -41,9 +42,10 @@ export default function RegisterScreen({ navigation }: any) {
         const userUID = userCredential.user.uid;
 
         // Additional Data
-        set(ref(db, 'users/'+ userUID), {
+        set(ref(db, 'users/' + userUID), {
           age: age.value,
           nick: nick.value,
+          imageProfile: "https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png",
         })
 
         navigation.reset({

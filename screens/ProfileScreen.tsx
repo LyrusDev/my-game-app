@@ -1,24 +1,31 @@
 import { Alert, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 // Librerias
-import { Button, Dialog, Portal, PaperProvider, Text as PaperText, useTheme } from 'react-native-paper'
+import { Button as PaperButton, Dialog, Portal, PaperProvider, Text as PaperText, useTheme } from 'react-native-paper'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
 // Image Picker
 import * as ImagePicker from "expo-image-picker";
-// FIREBASE
-import { storage, auth, db } from '../helpers/ConfigDB';
+// AUTH
 import { signOut } from "firebase/auth";
-import { getDownloadURL, ref, uploadBytes, getStorage } from "firebase/storage";
-import { onValue, ref as refDatabase, get } from "firebase/database";
+// STORAGE
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+// DATABASE
+import { ref as refDatabase, get, update } from "firebase/database";
+// HELPERS
+import { storage, auth, db } from '../helpers/ConfigDB';
+import { TextInput, Button } from '../components';
+// VALIDADORES 
+import { emailValidator } from "../helpers/emailValidator";
+import { nickValidator } from "../helpers/nickValidator";
+import { ageValidator } from "../helpers/ageValidator";
 
 export default function ProfileScreen({ navigation }: any) {
   const [image, setImage] = useState<string | null>(null);
   const [imageName, setImageName] = useState<string | null>(null);
-  const [profile, setProfile] = useState<string | null>(null);
+  const [imageProfile, setImageProfile] = useState({ value: "", error: "" });
   const [email, setEmail] = useState({ value: "", error: "" });
   const [nick, setNick] = useState({ value: "", error: "" });
   const [age, setAge] = useState({ value: "", error: "" });
-  // const [password, setPassword] = useState({ value: "", error: "" });
 
   const { colors } = useTheme()
   const styles = makeStyles(colors)
@@ -54,7 +61,7 @@ export default function ProfileScreen({ navigation }: any) {
           console.log("Datos del usuario:", userData);
           setAge({ value: snapshot.val().age, error: "" });
           setNick({ value: snapshot.val().nick, error: "" });
-          setProfile(snapshot.val().nick);
+          setImageProfile({ value: snapshot.val().imageProfile, error: "" })
         } else {
           console.log("El usuario no existe");
         }
@@ -100,16 +107,44 @@ export default function ProfileScreen({ navigation }: any) {
       await uploadBytes(storageRef, blob, {
         contentType: "image/jpg",
       });
-      // Subir una imagen PNG
-      await uploadBytes(storageRef, blob, {
-        contentType: "image/png",
-      });
+
+      const imageURL = await getDownloadURL(storageRef);
+
+      const userUID = auth.currentUser?.uid;
+      // Additional Data
+      update(refDatabase(db, 'users/' + userUID), {
+        imageProfile: imageURL
+      })
+
+      setImageProfile({ value: imageURL, error: "" });
 
       console.log("El archivo se subió con éxito");
     } catch (error) {
       console.log(error);
     }
   }
+
+  function uploadData() {
+    const userUID = auth.currentUser?.uid;
+    // Additional Data
+    update(refDatabase(db, 'users/' + userUID), {
+      nick: nick.value,
+      age: age.value
+    })
+  }
+
+  function onUploadPressed() {
+    const emailError = emailValidator(email.value);
+    const nickError = nickValidator(nick.value);
+    const ageError = ageValidator(age.value);
+    if (emailError || nickError || ageError) {
+      setEmail({ ...email, error: emailError });
+      setNick({ ...nick, error: nickError });
+      setAge({ ...age, error: ageError });
+      return;
+    }
+    uploadData();
+  };
 
   return (
     <ImageBackground
@@ -120,7 +155,7 @@ export default function ProfileScreen({ navigation }: any) {
       <PaperProvider>
         {/* Dialog LogOut */}
         <View style={{ flexDirection: 'row-reverse' }} >
-          <Button
+          <PaperButton
             style={styles.btnLogOut}
             mode='text'
             onPress={showDialog}
@@ -128,15 +163,15 @@ export default function ProfileScreen({ navigation }: any) {
             <PaperText style={{ color: '#2fb6c3', fontSize: 15, fontWeight: '700' }} >
               Cerrar Sesión
             </PaperText>
-          </Button>
+          </PaperButton>
           <Portal>
             <Dialog visible={visible} onDismiss={hideDialog} style={{ height: 140 }} >
               <Dialog.Content>
                 <PaperText variant="bodyLarge">¿Seguro que quiere salir?</PaperText>
               </Dialog.Content>
               <Dialog.Actions>
-                <Button onPress={hideDialog}>Cancelar</Button>
-                <Button onPress={logOut}>Salir</Button>
+                <PaperButton onPress={hideDialog}>Cancelar</PaperButton>
+                <PaperButton onPress={logOut}>Salir</PaperButton>
               </Dialog.Actions>
             </Dialog>
           </Portal>
@@ -147,7 +182,7 @@ export default function ProfileScreen({ navigation }: any) {
           <Text style={styles.txtHeader}>Bienvenido/a</Text>
           <View style={styles.containerProfile} >
             <TouchableOpacity style={styles.btnProfile} onPress={pickImage}>
-              {!image && (
+              {!imageProfile.value && (
                 <Image
                   source={{
                     uri: "https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png",
@@ -155,19 +190,44 @@ export default function ProfileScreen({ navigation }: any) {
                   style={styles.image}
                 />
               )}
-              {image && <Image source={{ uri: image }} style={styles.image} />}
+              {imageProfile.value && <Image source={{ uri: imageProfile.value }} style={styles.image} />}
             </TouchableOpacity>
           </View>
           <View style={styles.containerData}>
-            <View style={styles.dataBanner}>
-              <Text style={styles.txtData}>{nick.value}</Text>
-            </View>
-            <View style={styles.dataBanner}>
-              <Text style={styles.txtData}>{email.value}</Text>
-            </View>
-            <View style={styles.dataBanner}>
-              <Text style={styles.txtData}>{age.value}</Text>
-            </View>
+            <TextInput
+              returnKeyType="next"
+              value={email.value}
+              onChangeText={(text: string) => setEmail({ value: text, error: "" })}
+              error={!!email.error}
+              errorText={email.error}
+              autoCapitalize="none"
+              autoCompleteType="email"
+              textContentType="emailAddress"
+              keyboardType="email-address"
+              // editable={false}
+              disabled={true}
+            />
+            <TextInput
+              label="Nick"
+              returnKeyType="next"
+              value={nick.value}
+              onChangeText={(text: string) => setNick({ value: text, error: "" })}
+              error={!!nick.error}
+              errorText={nick.error}
+              style={{ paddingTop: 10 }}
+            />
+            <TextInput
+              label="Edad"
+              returnKeyType="next"
+              value={age.value}
+              onChangeText={(text: string) => setAge({ value: text, error: "" })}
+              error={!!age.error}
+              errorText={age.error}
+              style={{ paddingTop: 10 }}
+            />
+            <Button mode="outlined" onPress={onUploadPressed} style={{ marginTop: 10 }}>
+              Actualizar
+            </Button>
           </View>
         </View>
       </PaperProvider>
@@ -179,8 +239,7 @@ const makeStyles = (colors: MD3Colors) =>
   StyleSheet.create({
     background: {
       flex: 1,
-      width: '100%',
-      backgroundColor: colors.surface
+      width: '100%'
     },
     btnLogOut: {
       position: 'absolute',
@@ -189,7 +248,7 @@ const makeStyles = (colors: MD3Colors) =>
     },
     container: {
       flex: 1,
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
     txtHeader: {
       textAlign: 'center',
@@ -204,8 +263,8 @@ const makeStyles = (colors: MD3Colors) =>
       borderRadius: 100,
       borderWidth: 2,
       borderColor: '#aaa',
-      marginTop: 20,
-      marginBottom: 20
+      marginTop: 10,
+      marginBottom: 10
     },
     image: {
       width: 150,
@@ -213,22 +272,11 @@ const makeStyles = (colors: MD3Colors) =>
       borderRadius: 100
     },
     containerData: {
+      paddingHorizontal: 20,
       width: '100%',
-      gap: 10
-    },
-    dataBanner: {
-      marginLeft: 55,
-      marginRight: 55,
-      paddingTop: 20,
-      paddingBottom: 20,
-      paddingLeft: 30,
-      paddingRight: 30,
-      borderRadius: 15,
-      backgroundColor: '#2fb6c340',
-    },
-    txtData: {
-      color: '#ffff',
-      fontSize: 17,
-      fontWeight: '400'
+      maxWidth: 340,
+      alignSelf: 'center',
+      alignItems: 'center',
+      justifyContent: 'center'
     }
   })

@@ -8,7 +8,7 @@ export default function Background ({ children }: any) {
   const styles = makeStyles(colors)
   return (
     <ImageBackground
-      source={require('../assets/background_dot.png')}
+      source={require('../assets/background_prof.jpg')}
       resizeMode="cover"
       style={styles.background}
     >

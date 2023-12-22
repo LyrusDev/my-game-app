@@ -31,7 +31,7 @@ const makeStyles = (colors: MD3Colors) => StyleSheet.create({
     marginVertical: 12
   },
   input: {
-    backgroundColor: colors.surface
+    backgroundColor: colors.surface,
   },
   description: {
     fontSize: 13,
