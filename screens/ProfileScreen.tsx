@@ -131,6 +131,7 @@ export default function ProfileScreen({ navigation }: any) {
       nick: nick.value,
       age: age.value
     })
+    Alert.alert('Exitoso', 'Se actualizaron los datos')
   }
 
   function onUploadPressed() {
