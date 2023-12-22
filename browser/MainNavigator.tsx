@@ -1,3 +1,4 @@
+import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -7,8 +8,8 @@ import RegistroScreen from "../screens/RegistroScreen";
 // Pruebas
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ProfileScreen from "../screens/ProfileScreen";
-import GameScreen from "../screens/GameScreen";
 import ScoreScreen from "../screens/ScoreScreen";
+import HomeStack from "../screens/HomeScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -34,9 +35,9 @@ function MyTab() {
         headerShown: false,
       }}
     >
-      {/* <Tab.Screen name="Game" component={GameScreen} /> */}
-      {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
+      <Tab.Screen name="HomeStack" component={HomeStack} />
       <Tab.Screen name="Score" component={ScoreScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -44,7 +45,7 @@ function MyTab() {
 export default function MainNavigator() {
   return (
     <NavigationContainer>
-      <MyTab />
+      <MyStack />
     </NavigationContainer>
   );
 }
